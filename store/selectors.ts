@@ -17,12 +17,12 @@ export const hasDelegate = (state: State, walletAddress: string) => {
 	return state.delegates[walletAddress] && state.delegates[walletAddress].curr;
 };
 
-export const hasPrevDelegate = (state: State, walletAddress: string) => {
-	return state.delegates[walletAddress] && state.delegates[walletAddress].prev;
-};
-
 export const getDelegate = (state: State, walletAddress: string) => {
 	return state.delegates[walletAddress].curr;
+};
+
+export const hasPrevDelegate = (state: State, walletAddress: string) => {
+	return state.delegates[walletAddress] && state.delegates[walletAddress].prev;
 };
 
 export const getPrevDelegate = (state: State, walletAddress: string) => {
