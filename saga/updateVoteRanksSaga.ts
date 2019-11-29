@@ -12,24 +12,18 @@ import {
 
 export default function* updateVoteRanksSaga() {
 	yield takeEvery(increaseVoteBalance, function*({ payload }) {
-		const oldVoteRank = yield select(getVoteRank, payload.delegateAddress);
-		const newVoteRank = yield select(
-			getNewHigherVoteRank,
-			payload.delegateAddress
-		);
-
+		const delegateAddress = payload.delegateAddress;
+		const oldVoteRank = yield select(getVoteRank, delegateAddress);
+		const newVoteRank = yield select(getNewHigherVoteRank, delegateAddress);
 		if (oldVoteRank !== newVoteRank) {
-			yield put(setVoteRank(payload.delegateAddress, newVoteRank));
+			yield put(setVoteRank(delegateAddress, newVoteRank));
 		}
 	});
 
 	yield takeEvery(decreaseVoteBalance, function*({ payload }) {
-		const oldVoteRank = yield select(getVoteRank, payload.delegateAddress);
-		const newVoteRank = yield select(
-			getNewLowerVoteRank,
-			payload.delegateAddress
-		);
-
+		const delegateAddress = payload.delegateAddress;
+		const oldVoteRank = yield select(getVoteRank, delegateAddress);
+		const newVoteRank = yield select(getNewLowerVoteRank, delegateAddress);
 		if (oldVoteRank !== newVoteRank) {
 			yield put(setVoteRank(payload.delegateAddress, newVoteRank));
 		}
