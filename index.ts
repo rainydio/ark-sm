@@ -60,7 +60,7 @@ const show = (a: number) => {
 		reducer,
 		applyMiddleware(collectorMiddleware, sagaMiddleware)
 	);
-	const task = sagaMiddleware.run(rootSaga);
+	const rootSagaTask = sagaMiddleware.run(rootSaga);
 
 	for (let i = 0; i < a; i++) {
 		store.dispatch(actions[i]);
@@ -95,11 +95,10 @@ const show = (a: number) => {
 	for (let i = 0; i < count; i++) {
 		const actionLine = actionLines[i] || "";
 		const stateLine = stateLines[i] || "";
-
-		console.log(`${padRight(actionLine, padSize)}   |   ${stateLine}`);
+		console.log(`${padRight(actionLine, padSize)}  |  ${stateLine}`);
 	}
 
-	task.cancel();
+	rootSagaTask.cancel();
 };
 
 let a = 0;
