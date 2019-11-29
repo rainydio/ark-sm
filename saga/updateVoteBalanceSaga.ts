@@ -1,4 +1,4 @@
-import { takeEvery, select, put, fork } from "redux-saga/effects";
+import { takeEvery, select, put, fork, call } from "redux-saga/effects";
 import {
 	hasDelegate,
 	getDelegate,
@@ -15,6 +15,39 @@ import {
 	setDelegate,
 	clearDelegate
 } from "../store/actions";
+
+export function* giveDelegateVoteBalance(walletAddress: string) {
+	if (yield select(hasPositiveBalance, walletAddress)) {
+		if (yield select(hasDelegate, walletAddress)) {
+			const balance = yield select(getBalance, walletAddress);
+			const delegateAddress = yield select(getDelegate, walletAddress);
+			yield put(increaseVoteBalance(delegateAddress, balance));
+		}
+	}
+}
+
+export function* takePreviousDelegateVoteBalance(walletAddress: string) {
+	if (yield select(hasPositiveBalance, walletAddress)) {
+		if (yield select(hasPrevDelegate, walletAddress)) {
+			const balance = yield select(getBalance, walletAddress);
+			const prevDelegateAddress = yield select(getPrevDelegate, walletAddress);
+			yield put(decreaseVoteBalance(prevDelegateAddress, balance));
+		}
+	}
+}
+
+export function* followDelegateChangesSaga() {
+	// after every `setDelegate`
+	yield takeEvery(setDelegate, function*({ payload }) {
+		yield call(takePreviousDelegateVoteBalance, payload.walletAddress);
+		yield call(giveDelegateVoteBalance, payload.walletAddress);
+	});
+
+	// after every `clearDelegate`
+	yield takeEvery(clearDelegate, function*({ payload }) {
+		yield call(takePreviousDelegateVoteBalance, payload.walletAddress);
+	});
+}
 
 export function* followBalanceChangesSaga() {
 	// after every `increaseBalance`
@@ -36,43 +69,7 @@ export function* followBalanceChangesSaga() {
 	});
 }
 
-export function* followDelegateChangesSaga() {
-	// after every `setDelegate`
-	yield takeEvery(setDelegate, function*({ payload }) {
-		if (yield select(hasPositiveBalance, payload.walletAddress)) {
-			// increase new delegate's vote balance
-			const balance = yield select(getBalance, payload.walletAddress);
-			const delegateAddress = yield select(getDelegate, payload.walletAddress);
-			yield put(increaseVoteBalance(delegateAddress, balance));
-
-			if (yield select(hasPrevDelegate, payload.walletAddress)) {
-				// and decrease previous delegate's vote balance
-				const prevDelegateAddress = yield select(
-					getPrevDelegate,
-					payload.walletAddress
-				);
-				yield put(decreaseVoteBalance(prevDelegateAddress, balance));
-			}
-		}
-	});
-
-	// after every `clearDelegate`
-	yield takeEvery(clearDelegate, function*({ payload }) {
-		if (yield select(hasPositiveBalance, payload.walletAddress)) {
-			if (yield select(hasPrevDelegate, payload.walletAddress)) {
-				// decrease previous delegate's vote balance
-				const balance = yield select(getBalance, payload.walletAddress);
-				const prevDelegateAddress = yield select(
-					getPrevDelegate,
-					payload.walletAddress
-				);
-				yield put(decreaseVoteBalance(prevDelegateAddress, balance));
-			}
-		}
-	});
-}
-
 export default function* updateVoteBalanceSaga() {
-	yield fork(followBalanceChangesSaga);
 	yield fork(followDelegateChangesSaga);
+	yield fork(followBalanceChangesSaga);
 }
