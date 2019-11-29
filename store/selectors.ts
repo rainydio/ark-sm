@@ -9,6 +9,10 @@ export const getBalance = (state: State, walletAddress: string) => {
 	return state.balances[walletAddress] || new BigNumber(0);
 };
 
+export const hasPositiveBalance = (state: State, walletAddress: string) => {
+	return getBalance(state, walletAddress).isGreaterThan(0);
+};
+
 export const getDelegates = (state: State) => {
 	return Object.keys(state.delegates);
 };

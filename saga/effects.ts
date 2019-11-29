@@ -1,8 +1,14 @@
+import { ActionMatchingPattern } from "@redux-saga/types";
 import { takeEvery, select, put, call, ForkEffect } from "redux-saga/effects";
 import { getNonce } from "../store/selectors";
 import { incrementNonce, WalletTransaction } from "../store/actions";
-import { ActionMatchingPattern } from "@redux-saga/types";
 
+/**
+ * Take every transaction with matching nonce
+ *
+ * @param pattern transaction action creator
+ * @param worker transaction handler
+ */
 export const takeEveryTransaction = function<P extends WalletTransaction>(
 	pattern: P,
 	worker: (action: ActionMatchingPattern<P>) => any

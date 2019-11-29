@@ -54,7 +54,7 @@ Redux is just a library over this concept providing simple middleware api and me
 
 ### [Redux-Saga]
 
-It's redux middleware to manage side-effects. It can work without redux too.
+It's redux middleware to manage side-effects.
 
 [redux]: https://redux.js.org/
 [redux-saga]: https://redux-saga.js.org/
