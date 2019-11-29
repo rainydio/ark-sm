@@ -10,7 +10,7 @@ import {
  * Handle `executeBalanceTransfer` action
  */
 export default function* handleBalanceTransferSaga() {
-	// take every correct `executeBalanceTransfer` transaction
+	// take every `executeBalanceTransfer` transaction
 	yield takeEveryTransaction(executeBalanceTransfer, function*({ payload }) {
 		// decrease sender balance
 		yield put(decreaseBalance(payload.walletAddress, payload.amount));

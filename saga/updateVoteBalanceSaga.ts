@@ -17,17 +17,19 @@ import {
 } from "../store/actions";
 
 export function* followBalanceChangesSaga() {
-	// if necessary execute increaseVoteBalance after every increaseBalance
+	// after every `increaseBalance`
 	yield takeEvery(increaseBalance, function*({ payload }) {
 		if (yield select(hasDelegate, payload.walletAddress)) {
+			// also increase delegate's vote balance
 			const delegateAddress = yield select(getDelegate, payload.walletAddress);
 			yield put(increaseVoteBalance(delegateAddress, payload.amount));
 		}
 	});
 
-	// if necessary execute decreaseVoteBalance after every decreaseBalance
+	// after every `decreaseBalance`
 	yield takeEvery(decreaseBalance, function*({ payload }) {
 		if (yield select(hasDelegate, payload.walletAddress)) {
+			// also decrease delegate's vote balance
 			const delegateAddress = yield select(getDelegate, payload.walletAddress);
 			yield put(decreaseVoteBalance(delegateAddress, payload.amount));
 		}
@@ -35,13 +37,16 @@ export function* followBalanceChangesSaga() {
 }
 
 export function* followDelegateChangesSaga() {
+	// after every `setDelegate`
 	yield takeEvery(setDelegate, function*({ payload }) {
 		if (yield select(hasPositiveBalance, payload.walletAddress)) {
+			// increase new delegate's vote balance
 			const balance = yield select(getBalance, payload.walletAddress);
 			const delegateAddress = yield select(getDelegate, payload.walletAddress);
 			yield put(increaseVoteBalance(delegateAddress, balance));
 
 			if (yield select(hasPrevDelegate, payload.walletAddress)) {
+				// and decrease previous delegate's vote balance
 				const prevDelegateAddress = yield select(
 					getPrevDelegate,
 					payload.walletAddress
@@ -51,9 +56,11 @@ export function* followDelegateChangesSaga() {
 		}
 	});
 
+	// after every `clearDelegate`
 	yield takeEvery(clearDelegate, function*({ payload }) {
 		if (yield select(hasPositiveBalance, payload.walletAddress)) {
 			if (yield select(hasPrevDelegate, payload.walletAddress)) {
+				// decrease previous delegate's vote balance
 				const balance = yield select(getBalance, payload.walletAddress);
 				const prevDelegateAddress = yield select(
 					getPrevDelegate,
