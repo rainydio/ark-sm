@@ -34,6 +34,10 @@ export default function* updateVoteBalanceSaga() {
 
 	yield takeEvery(setDelegate, function*({ payload }) {
 		const balance = yield select(getBalance, payload.walletAddress);
+		if (balance.isEqualTo(0)) {
+			return;
+		}
+
 		const delegateAddress = yield select(getDelegate, payload.walletAddress);
 		yield put(increaseVoteBalance(delegateAddress, balance));
 
@@ -49,6 +53,10 @@ export default function* updateVoteBalanceSaga() {
 	yield takeEvery(clearDelegate, function*({ payload }) {
 		if (yield select(hasPrevDelegate, payload.walletAddress)) {
 			const balance = yield select(getBalance, payload.walletAddress);
+			if (balance.isEqualTo(0)) {
+				return;
+			}
+
 			const prevDelegateAddress = yield select(
 				getPrevDelegate,
 				payload.walletAddress
