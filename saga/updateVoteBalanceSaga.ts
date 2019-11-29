@@ -50,19 +50,17 @@ export function* followDelegateChangesSaga() {
 }
 
 export function* followBalanceChangesSaga() {
-	// after every `increaseBalance`
+	// after every `increaseBalance` also increase delegate's vote balance
 	yield takeEvery(increaseBalance, function*({ payload }) {
 		if (yield select(hasDelegate, payload.walletAddress)) {
-			// also increase delegate's vote balance
 			const delegateAddress = yield select(getDelegate, payload.walletAddress);
 			yield put(increaseVoteBalance(delegateAddress, payload.amount));
 		}
 	});
 
-	// after every `decreaseBalance`
+	// after every `decreaseBalance` also decrease delegate's vote balance
 	yield takeEvery(decreaseBalance, function*({ payload }) {
 		if (yield select(hasDelegate, payload.walletAddress)) {
-			// also decrease delegate's vote balance
 			const delegateAddress = yield select(getDelegate, payload.walletAddress);
 			yield put(decreaseVoteBalance(delegateAddress, payload.amount));
 		}
