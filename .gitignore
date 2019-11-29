@@ -1,0 +1,4 @@
+node_modules/
+.envrc
+.vscode
+yarn-error.log
