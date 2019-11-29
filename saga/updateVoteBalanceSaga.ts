@@ -34,34 +34,30 @@ export default function* updateVoteBalanceSaga() {
 
 	yield takeEvery(setDelegate, function*({ payload }) {
 		const balance = yield select(getBalance, payload.walletAddress);
-		if (balance.isEqualTo(0)) {
-			return;
-		}
+		if (balance.isEqualTo(0) === false) {
+			const delegateAddress = yield select(getDelegate, payload.walletAddress);
+			yield put(increaseVoteBalance(delegateAddress, balance));
 
-		const delegateAddress = yield select(getDelegate, payload.walletAddress);
-		yield put(increaseVoteBalance(delegateAddress, balance));
-
-		if (yield select(hasPrevDelegate, payload.walletAddress)) {
-			const prevDelegateAddress = yield select(
-				getPrevDelegate,
-				payload.walletAddress
-			);
-			yield put(decreaseVoteBalance(prevDelegateAddress, balance));
+			if (yield select(hasPrevDelegate, payload.walletAddress)) {
+				const prevDelegateAddress = yield select(
+					getPrevDelegate,
+					payload.walletAddress
+				);
+				yield put(decreaseVoteBalance(prevDelegateAddress, balance));
+			}
 		}
 	});
 
 	yield takeEvery(clearDelegate, function*({ payload }) {
 		if (yield select(hasPrevDelegate, payload.walletAddress)) {
 			const balance = yield select(getBalance, payload.walletAddress);
-			if (balance.isEqualTo(0)) {
-				return;
+			if (balance.isEqualTo(0) === false) {
+				const prevDelegateAddress = yield select(
+					getPrevDelegate,
+					payload.walletAddress
+				);
+				yield put(decreaseVoteBalance(prevDelegateAddress, balance));
 			}
-
-			const prevDelegateAddress = yield select(
-				getPrevDelegate,
-				payload.walletAddress
-			);
-			yield put(decreaseVoteBalance(prevDelegateAddress, balance));
 		}
 	});
 }

@@ -98,3 +98,7 @@ export const executeDelegateChoice = createAction(
 		return { walletAddress, walletNonce, delegateAddress };
 	}
 )();
+
+export type WalletTransaction =
+	| typeof executeBalanceTransfer
+	| typeof executeDelegateChoice;
