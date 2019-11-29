@@ -57,7 +57,7 @@ export const getNewHigherVoteRank = (state: State, delegateAddress: string) => {
 	for (let i = startFrom; i >= 0; i--) {
 		const delegateAddressI = state.voteRanks[i];
 		const voteBalanceI = getVoteBalance(state, delegateAddressI);
-		if (voteBalanceI >= voteBalance) {
+		if (voteBalanceI.isGreaterThanOrEqualTo(voteBalance)) {
 			return i + 1;
 		}
 	}
@@ -77,10 +77,14 @@ export const getNewLowerVoteRank = (state: State, delegateAddress: string) => {
 	for (let i = startFrom; i < state.voteRanks.length; i++) {
 		const delegateAddressI = state.voteRanks[i];
 		const voteBalanceI = getVoteBalance(state, delegateAddressI);
-		if (voteBalanceI <= voteBalance) {
-			return i;
+		if (voteBalanceI.isLessThanOrEqualTo(voteBalance)) {
+			return voteRank === -1 ? i : i - 1;
 		}
 	}
 
-	return voteRank === -1 ? state.voteRanks.length : state.voteRanks.length - 1;
+	if (voteRank === -1) {
+		return state.voteRanks.length;
+	} else {
+		return state.voteRanks.length - 1;
+	}
 };
