@@ -78,7 +78,7 @@ export const getNewLowerVoteRank = (state: State, delegateAddress: string) => {
 		const delegateAddressI = state.voteRanks[i];
 		const voteBalanceI = getVoteBalance(state, delegateAddressI);
 		if (voteBalanceI <= voteBalance) {
-			return i - 1;
+			return i;
 		}
 	}
 
